@@ -7,30 +7,37 @@ const sequelize = new Sequelize(config.DATABASE_URL, {
     },
 });
 
-class Note extends Model { }
-Note.init({
+class Blog extends Model { }
+Blog.init({
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true
     },
-    content: {
+    title: {
         type: DataTypes.TEXT,
         allowNull: false
     },
-    important: {
-        type: DataTypes.BOOLEAN
+    author: {
+        type: DataTypes.TEXT,
+        allowNull: true
     },
-    date: {
-        type: DataTypes.DATE
+    url: {
+        type: DataTypes.TEXT,
+        allowNull: false
+    },
+    likes: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
     }
 }, {
     sequelize,
     underscored: true,
     timestamps: false,
-    modelName: 'note'
+    modelName: 'blog'
 })
 
-Note.sync()
+Blog.sync()
 
-module.exports = Note
+module.exports = Blog
