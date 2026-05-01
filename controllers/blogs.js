@@ -1,43 +1,42 @@
-const blogsRouter = require("express").Router();
-const Blog = require('../models/blog')
+const router = require('express').Router()
+const asyncHandler = require('../middleware/asyncHandler')
+const finder = require('../utils/finder')
+const blogService = require('../services/blogService')
+const { Blog, User } = require('../models')
+const tokenExtractor = require('../middleware/tokenExtractor')
 
-blogsRouter.get('/', async (req, res) => {
-    const blogs = await Blog.findAll()
-    res.json(blogs)
+const blogFinder = finder(Blog, 'blog')
+
+router.get('/', asyncHandler(async (req, res) => {
+  const blogs = await blogService.getAll()
+  res.json(blogs)
+}))
+
+router.post('/', tokenExtractor, asyncHandler(async (req, res) => {
+  const user = await User.findByPk(req.decodedToken.id)
+  const blog = await blogService.create({ ...req.body, userId: user.id })
+  res.json(blog)
+}))
+
+const authorizeBlogOwner = (req, res, next) => {
+  if (req.blog.userId !== req.decodedToken.id) {
+    return res.status(403).json({ error: 'Forbidden: not the owner' })
+  }
+  next()
+}
+
+router.get('/:id', blogFinder, (req, res) => {
+  res.json(req.blog)
 })
 
-blogsRouter.post('/', async (req, res) => {
-    try {
-        const blog = await Blog.create({ ...req.body })
-        return res.json(blog)
-    } catch (error) {
-        return res.status(400).json({ error })
-    }
-})
+router.put('/:id', tokenExtractor, blogFinder, authorizeBlogOwner, asyncHandler(async (req, res) => {
+  const updated = await blogService.update(req.blog, req.body)
+  res.json(updated)
+}))
 
-blogsRouter.get('/:id', async (req, res) => {
-    const blog = await Blog.findByPk(req.params.id)
-    if (blog) {
-        res.json(blog)
-    } else {
-        res.status(404).end()
-    }
-})
+router.delete('/:id', tokenExtractor, blogFinder, authorizeBlogOwner, asyncHandler(async (req, res) => {
+  await blogService.remove(req.blog)
+  res.status(204).end()
+}))
 
-blogsRouter.put('/:id', async (req, res) => {
-    try {
-        const blog = await Blog.findByPk(req.params.id)
-
-        if (!blog) {
-            return res.status(404).end()
-        }
-
-        await blog.update(req.body)
-
-        res.json(blog)
-    } catch (error) {
-        next(error)
-    }
-})
-
-module.exports = blogsRouter
+module.exports = router

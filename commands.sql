@@ -1,16 +1,3 @@
-CREATE TABLE notes (
-    id SERIAL PRIMARY KEY,
-    content text NOT NULL,
-    important boolean,
-    date time
-);
-
-
-INSERT INTO notes (content, important)
-VALUES
-('Relational databases rule the world', true),
-('MongoDB is webscale', false);
-
 CREATE TABLE blogs (
     id SERIAL PRIMARY KEY,
     author TEXT,
