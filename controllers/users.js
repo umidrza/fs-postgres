@@ -2,6 +2,8 @@ const router = require('express').Router()
 const asyncHandler = require('../middleware/asyncHandler')
 const User = require('../models')
 const userService = require('../services/userService')
+const tokenExtractor = require('../middleware/tokenExtractor')
+const isAdmin = require('../middleware/isAdmin')
 
 router.get('/', asyncHandler(async (req, res) => {
   const users = await userService.getAll()
@@ -29,5 +31,17 @@ router.put('/:username', asyncHandler(async (req, res) => {
   const updatedUser = await userService.update(user, req.body)
   res.json(updatedUser)
 }))
+
+router.put('/:username', tokenExtractor, isAdmin, async (req, res) => {
+  const user = await userService.getByUsername(req.params.username)
+
+  if (user) {
+    user.disabled = req.body.disabled
+    await user.save()
+    res.json(user)
+  } else {
+    res.status(404).json({ error: 'user not found' })
+  }
+})
 
 module.exports = router
