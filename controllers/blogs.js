@@ -8,7 +8,7 @@ const tokenExtractor = require('../middleware/tokenExtractor')
 const blogFinder = finder(Blog, 'blog')
 
 router.get('/', asyncHandler(async (req, res) => {
-  const blogs = await blogService.getAll()
+  const blogs = await blogService.getAll({ search: req.query.search })
   res.json(blogs)
 }))
 

@@ -1,4 +1,4 @@
-const User = require('../models')
+const { User, Blog } = require('../models')
 const bcrypt = require('bcrypt')
 
 const getAll = async () => {

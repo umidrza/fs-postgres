@@ -1,12 +1,32 @@
 const { Blog, User } = require('../models')
+const { Op } = require('sequelize')
 
-const getAll = async () => {
+const getAll = async ({ search }) => {
+  const where = {}
+
+  if (search) {
+    where[Op.or] = [
+      {
+        title: {
+          [Op.substring]: search
+        }
+      },
+      {
+        author: {
+          [Op.substring]: search
+        }
+      }
+    ]
+  }
+
   return await Blog.findAll({
     attributes: { exclude: ['userId'] },
     include: {
       model: User,
       attributes: ['name']
-    }
+    },
+    where,
+    order: [['likes', 'DESC']]
   })
 }
 
