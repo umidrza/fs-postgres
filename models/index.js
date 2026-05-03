@@ -14,8 +14,8 @@ User.hasMany(Blog)
 User.belongsToMany(Team, { through: Membership })
 Team.belongsToMany(User, { through: Membership })
 
-User.belongsToMany(Blog, { through: ReadingList, as: 'marked_blogs' })
-Blog.belongsToMany(User, { through: ReadingList, as: 'users_marked' })
+User.belongsToMany(Blog, { through: ReadingList, as: 'readings' })
+Blog.belongsToMany(User, { through: ReadingList, as: 'readers' })
 
 module.exports = {
     Blog, User, Team, Membership, ReadingList, Session

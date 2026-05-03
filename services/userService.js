@@ -20,10 +20,10 @@ const getAll = async () => {
     })
 }
 
-const getByUsername = async (username, { read }) => {
+const getByUsername = async (username, { isRead }) => {
     const includeMarkedBlogs = {
         model: Blog,
-        as: 'marked_blogs',
+        as: 'readings',
         attributes: { exclude: ['userId'] },
         through: {
             attributes: ['isRead', 'id']
@@ -34,14 +34,12 @@ const getByUsername = async (username, { read }) => {
         }
     }
 
-    if (read === 'true') {
+    if (isRead === 'true') {
         includeMarkedBlogs.through.where = { isRead: true }
-        includeMarkedBlogs.required = true
     }
 
-    if (read === 'false') {
+    if (isRead === 'false') {
         includeMarkedBlogs.through.where = { isRead: false }
-        includeMarkedBlogs.required = true
     }
 
     return await User.findOne({
@@ -69,7 +67,7 @@ const create = async (data) => {
 
     const passwordHash = await bcrypt.hash(password, 10)
 
-    await User.create({
+    return await User.create({
         username,
         name,
         passwordHash,

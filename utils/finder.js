@@ -3,6 +3,10 @@ const finder = (Model, key, source = 'params', field = 'id') => {
     try {
       const value = req[source][field]
 
+      if (!value) {
+        return res.status(400).json({ error: `${field} is required` })
+      }
+
       const instance = await Model.findByPk(value)
 
       if (!instance) {
