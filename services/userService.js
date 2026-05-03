@@ -20,6 +20,50 @@ const getAll = async () => {
     })
 }
 
+const getByUsername = async (username, { read }) => {
+    const includeMarkedBlogs = {
+        model: Blog,
+        as: 'marked_blogs',
+        attributes: { exclude: ['userId'] },
+        through: {
+            attributes: ['isRead', 'id']
+        },
+        include: {
+            model: User,
+            attributes: ['name']
+        }
+    }
+
+    if (read === 'true') {
+        includeMarkedBlogs.through.where = { isRead: true }
+        includeMarkedBlogs.required = true
+    }
+
+    if (read === 'false') {
+        includeMarkedBlogs.through.where = { isRead: false }
+        includeMarkedBlogs.required = true
+    }
+
+    return await User.findOne({
+        where: { username },
+        attributes: { exclude: ['passwordHash'] },
+        include: [
+            {
+                model: Blog,
+                attributes: { exclude: ['userId'] }
+            },
+            includeMarkedBlogs,
+            {
+                model: Team,
+                attributes: ['name', 'id'],
+                through: {
+                    attributes: []
+                }
+            }
+        ]
+    })
+}
+
 const create = async (data) => {
     const { username, name, password } = data
 
@@ -32,10 +76,6 @@ const create = async (data) => {
         createdAt: new Date(),
         updatedAt: new Date()
     })
-}
-
-const getByUsername = async (username) => {
-    return await User.findOne({ where: { username } })
 }
 
 const update = async (user, data) => {

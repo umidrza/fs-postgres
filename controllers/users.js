@@ -16,14 +16,14 @@ router.post('/', asyncHandler(async (req, res) => {
 }))
 
 router.get('/:username', asyncHandler(async (req, res) => {
-  const user = await userService.getByUsername(req.params.username)
+  const user = await userService.getByUsername(req.params.username, req.query)
   if (!user) {
     return res.status(404).json({ error: 'user not found' })
   }
   res.json(user)
 }))
 
-router.put('/:username', asyncHandler(async (req, res) => {
+router.put('/:username', tokenExtractor, asyncHandler(async (req, res) => {
   const user = await userService.getByUsername(req.params.username)
   if (!user) {
     return res.status(404).json({ error: 'user not found' })
@@ -32,7 +32,7 @@ router.put('/:username', asyncHandler(async (req, res) => {
   res.json(updatedUser)
 }))
 
-router.put('/:username', tokenExtractor, isAdmin, async (req, res) => {
+router.put('/:username', tokenExtractor, isAdmin, asyncHandler(async (req, res) => {
   const user = await userService.getByUsername(req.params.username)
 
   if (user) {
@@ -42,6 +42,6 @@ router.put('/:username', tokenExtractor, isAdmin, async (req, res) => {
   } else {
     res.status(404).json({ error: 'user not found' })
   }
-})
+}))
 
 module.exports = router

@@ -4,8 +4,9 @@ const finder = require('../utils/finder')
 const blogService = require('../services/blogService')
 const { Blog, User } = require('../models')
 const tokenExtractor = require('../middleware/tokenExtractor')
+const authorizeBlogOwner = require('../middleware/authorizeBlogOwner')
 
-const blogFinder = finder(Blog, 'blog')
+const blogFinder = finder(Blog, 'blog', 'params', 'id')
 
 router.get('/', asyncHandler(async (req, res) => {
   const blogs = await blogService.getAll({ search: req.query.search })
@@ -17,13 +18,6 @@ router.post('/', tokenExtractor, asyncHandler(async (req, res) => {
   const blog = await blogService.create({ ...req.body, userId: user.id })
   res.json(blog)
 }))
-
-const authorizeBlogOwner = (req, res, next) => {
-  if (req.blog.userId !== req.decodedToken.id) {
-    return res.status(403).json({ error: 'Forbidden: not the owner' })
-  }
-  next()
-}
 
 router.get('/:id', blogFinder, (req, res) => {
   res.json(req.blog)
