@@ -2,9 +2,10 @@ const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const router = require('express').Router()
 const { JWT_SECRET } = require('../utils/config')
-const { User } = require('../models')
+const { User, Session } = require('../models')
+const tokenExtractor = require('../middleware/tokenExtractor')
 
-router.post('/', async (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body
 
   const user = await User.findOne({ where: { username } })
@@ -23,7 +24,7 @@ router.post('/', async (req, res) => {
     return res.status(401).json({
       error: 'account disabled, please contact admin'
     })
-  }  
+  }
 
   const userForToken = {
     username: user.username,
@@ -36,6 +37,11 @@ router.post('/', async (req, res) => {
     { expiresIn: '1h' }
   )
 
+  await Session.create({
+    token,
+    userId: user.id,
+  });
+
   res
     .status(200)
     .send({
@@ -44,5 +50,15 @@ router.post('/', async (req, res) => {
       name: user.name
     })
 })
+
+router.delete('/logout', tokenExtractor, async (req, res) => {
+  await Session.destroy({
+    where: {
+      token: req.token,
+    },
+  });
+
+  res.status(204).end();
+});
 
 module.exports = router

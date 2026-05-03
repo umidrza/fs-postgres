@@ -10,7 +10,7 @@
     "start": "node index.js",
     "dev": "node --watch index.js",
     "test": "node --test --test-concurrency=1 tests/api_ch3.test.js",
-    "migration:down": "node util/rollback.js"  
+    "migration:down": "node utils/rollback.js"  
   },
   "dependencies": {
     "axios": "^1.15.2",
