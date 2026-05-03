@@ -23,7 +23,8 @@ describe('Blogs API', () => {
     const newBlog = {
       title: 'Test Blog Post',
       author: 'Test Author',
-      url: 'https://example.com/test-blog'
+      url: 'https://example.com/test-blog',
+      year: 2015
     }
 
     const response = await axios.post(`${baseUrl}/blogs`, newBlog, {
@@ -35,12 +36,14 @@ describe('Blogs API', () => {
     assert.strictEqual(response.data.author, newBlog.author)
     assert.strictEqual(response.data.url, newBlog.url)
     assert.strictEqual(response.data.likes, 0)
+    assert.strictEqual(response.data.year, newBlog.year)
   })
 
   it('created blog appears in blogs list', async () => {
     const response = await axios.get(`${baseUrl}/blogs`)
     assert.strictEqual(response.data.length, 1)
     assert.strictEqual(response.data[0].title, 'Test Blog Post')
+    assert.strictEqual(response.data[0].year, 2015)
   })
 
   it('blog can be updated', async () => {
@@ -51,7 +54,8 @@ describe('Blogs API', () => {
       title: 'Updated Blog Post',
       author: 'Updated Author',
       url: 'https://example.com/updated-blog',
-      likes: 5
+      likes: 5,
+      year: 2016
     }
 
     const response = await axios.put(`${baseUrl}/blogs/${blogId}`, updatedBlog, {
@@ -60,6 +64,7 @@ describe('Blogs API', () => {
 
     assert.ok([200, 201].includes(response.status))
     assert.strictEqual(response.data.likes, 5)
+    assert.strictEqual(response.data.year, 2016)
   })
 })
 
