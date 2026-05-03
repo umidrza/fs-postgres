@@ -1,12 +1,22 @@
-const { User, Blog } = require('../models')
+const { User, Blog, Team } = require('../models')
 const bcrypt = require('bcrypt')
 
 const getAll = async () => {
     return await User.findAll({
         attributes: { exclude: ['passwordHash'] },
-        include: {
-            model: Blog,
-        }
+        include: [
+            {
+                model: Blog,
+                attributes: { exclude: ['userId'] }
+            },
+            {
+                model: Team,
+                attributes: ['name', 'id'],
+                through: {
+                    attributes: []
+                }
+            }
+        ]
     })
 }
 
